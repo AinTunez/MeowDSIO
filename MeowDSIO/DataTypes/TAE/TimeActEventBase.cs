@@ -1,6 +1,7 @@
 ﻿using MeowDSIO.DataTypes.TAE.Events;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -77,6 +78,17 @@ namespace MeowDSIO.DataTypes.TAE
         public abstract void ReadParameters(DSBinaryReader bin);
         public abstract void WriteParameters(DSBinaryWriter bin);
 
+        public TimeActEventBase Clone()
+        {
+            var newEvent = TimeActEventBase.GetNewEvent(EventType, StartTime, EndTime);
+            using (var memStream = new MemoryStream())
+            {
+                WriteParameters(new DSBinaryWriter("", memStream));
+                memStream.Position = 0;
+                newEvent.ReadParameters(new DSBinaryReader("", memStream));
+            }
+            return newEvent;
+        }
 
         public event EventHandler<int> RowChanged;
         private void RaiseRowChanged(int oldRow)
